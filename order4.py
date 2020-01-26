@@ -587,7 +587,7 @@ def putTbetwSpec(highTx, highTy, lowTx, lowTy, blankx, blanky, topRow,
 
 def fixReversal(lowTx, lowTy, highTx, highTy, n1Tx, n1Ty, n2Tx, n2Ty, Qx, Qy,
                 Rx, Ry, Sx, Sy, blankx, blanky, topRow, bottomRow,
-                Tax, Tay, Tdx, Tdy):
+                Tax, Tay, Tdx, Tdy, doubleReversal=False):
     """Returns nextMove (one of UP, DOWN, LEFT, RIGHT).  lowT and highT are
     reversed.  n1 and n2 might be reversed.  val(n2T) > val(n1T).  This ftn is
     called from order4 when n1T and n2T can be pushed over to one side enough
@@ -635,6 +635,51 @@ def fixReversal(lowTx, lowTy, highTx, highTy, n1Tx, n1Ty, n2Tx, n2Ty, Qx, Qy,
             elif highTy == bottomRow and highTx == blankx and lowTx < highTx:
                 if n1Tx == 3 and n2Tx == 3:
                     return DOWN
+
+    # If fixReversal is called when there is a double reversal, it always works
+    # on the TbTa reversal first, not the TdTc reversal.  But oftentimes the
+    # swap conditions for the TdTc reversal will be met first as blank moves in
+    # the counter-clockwise direction.  The following code permits the cross-
+    # swap that fixes the TdTc reversal.
+    if doubleReversal:
+        lowTx_tmp, lowTy_tmp = lowTx, lowTy
+        highTx_tmp, highTy_tmp = highTx, highTy
+        highTx, highTy = n2Tx, n2Ty
+        lowTx, lowTy = n1Tx, n1Ty
+        n2Tx, n2Ty = highTx_tmp, highTy_tmp
+        n1Tx, n1Ty = lowTx_tmp, lowTy_tmp
+        
+        if blanky == bottomRow:
+            if blankx == 1:
+                if lowTy == topRow and lowTx == blankx and highTx < lowTx:
+                    if n1Tx > lowTx and n2Tx > lowTx:
+                        return UP
+                elif highTy == topRow and highTx == blankx and highTx < lowTx:
+                    if n1Tx == 0 and n2Tx == 0:
+                        return UP
+            elif blankx == 2:
+                if lowTy == topRow and lowTx == blankx and highTx < lowTx:
+                    if n1Tx == 3 and n2Tx == 3:
+                        return UP
+                elif highTy == topRow and highTx == blankx and highTx < lowTx:
+                    if n1Tx < highTx and n2Tx < highTx:
+                        return UP
+        elif blanky == topRow:
+            if blankx == 1:
+                if lowTy == bottomRow and lowTx == blankx and lowTx < highTx:
+                    if n2Tx == 0 and n1Tx == 0:
+                        return DOWN
+                elif highTy == bottomRow and highTx == blankx and lowTx < highTx:
+                    if n1Tx > highTx and n2Tx > highTx:
+                        return DOWN
+            elif blankx == 2:
+                if lowTy == bottomRow and lowTx == blankx and lowTx < highTx:
+                    if n2Tx < lowTx and n1Tx < lowTx:
+                        return DOWN
+                elif highTy == bottomRow and highTx == blankx and lowTx < highTx:
+                    if n1Tx == 3 and n2Tx == 3:
+                        return DOWN
+
     # Rotate blank until conditions for a cross-swap hold.  Otherwise we likely
     # need completely separate logic based on the number of Q,R,S betw highT
     # and lowT.
@@ -845,7 +890,8 @@ def order4(row, board):
                                            Tax, Tay, Tdx, Tdy)
                     return nextMove
     elif len(reversedTs) == 2:
-        # possible cases: (i) TbTa_reversed; (ii) TdTc_reversed,
+        # possible cases: (i) TbTa_reversed; (ii) TdTc_reversed
+        doubleReversal = True
 
         # if Q,R,S are contiguous, a call to putTileBetw is required
         QRS_cont = adjacent3(Qx, Qy, Rx, Ry, Sx, Sy, blankx, blanky)
@@ -882,7 +928,8 @@ def order4(row, board):
             else:
                 nextMove = fixReversal(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy,
                                        Qx, Qy, Rx, Ry, Sx, Sy, blankx, blanky,
-                                       topRow, bottomRow, Tax, Tay, Tdx, Tdy)
+                                       topRow, bottomRow, Tax, Tay, Tdx, Tdy,
+                                       doubleReversal)
                 return nextMove
         elif not QRS_adj:
             if not TbTa_adj:
@@ -892,7 +939,8 @@ def order4(row, board):
                 if not(TdTa_adj and TcTb_adj and test2):
                     nextMove = fixReversal(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy,
                                            Qx, Qy, Rx, Ry, Sx, Sy, blankx, blanky,
-                                           topRow, bottomRow, Tax, Tay, Tdx, Tdy)
+                                           topRow, bottomRow, Tax, Tay, Tdx,
+                                           Tdy, doubleReversal)
                     return nextMove
                 else:
                     # We want all of Q,R,S betw Tb and Ta; at present, 2 of
@@ -907,7 +955,8 @@ def order4(row, board):
                     if TdTa_adj or TcTb_adj:
                         nextMove = fixReversal(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy,
                                                Qx, Qy, Rx, Ry, Sx, Sy, blankx, blanky,
-                                               topRow, bottomRow, Tax, Tay, Tdx, Tdy)
+                                               topRow, bottomRow, Tax, Tay, Tdx,
+                                               Tdy, doubleReversal)
                         return nextMove
                     else:
                         nextMove = putTileBetw(Tbx, Tby, Tax, Tay,
@@ -921,7 +970,7 @@ def order4(row, board):
                     nextMove = fixReversal(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx,
                                            Tdy, Qx, Qy, Rx, Ry, Sx, Sy,
                                            blankx, blanky, topRow, bottomRow,
-                                           Tax, Tay, Tdx, Tdy)
+                                           Tax, Tay, Tdx, Tdy, doubleReversal)
                     return nextMove
 
 
