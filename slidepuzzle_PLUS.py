@@ -1,5 +1,5 @@
 # SlidePuzzlePlus
-# By Greg Schaefer (gnsphd@outlook.com) and Al Sweigart (al@inventwithpython.com)
+# By Greg Schaefer (schae029@gmail.com) and Al Sweigart (al@inventwithpython.com)
 # Released under a GNU GPLv3 license.
 
 #  Copyright (C) 2020 by Gregory N. Schaefer

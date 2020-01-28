@@ -22,7 +22,7 @@ Released under a GNU GPLv3 license.
 #############################################################################
 
 # SlidePuzzlePlus, constants_and_genFtns.py
-# By Greg Schaefer (gnsphd@outlook.com)
+# By Greg Schaefer (schae029@gmail.com)
 
 #  Copyright (C) 2020 by Gregory N. Schaefer
 #

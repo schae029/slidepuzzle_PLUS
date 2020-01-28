@@ -24,7 +24,7 @@ Released under a GNU GPLv3 license.
 #############################################################################
 
 # SlidePuzzlePlus, makeAdjacent4.py
-# By Greg Schaefer (gnsphd@outlook.com)
+# By Greg Schaefer (schae029@gmail.com)
 
 #  Copyright (C) 2020 by Gregory N. Schaefer
 #
