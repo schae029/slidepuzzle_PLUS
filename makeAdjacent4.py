@@ -365,8 +365,10 @@ def moveOneNotDone(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy, blankx, blanky,
                         blanky, topRow, bottomRow)
 
     # The gap in which the tile is located matters.  Separate logic is
-    # required for the case where the tile is betw. Tc and Td.
-    if betwTaTb or betwTbTc:
+    # required for the case where the tile is betw. Tc and Td.  The algorithm
+    # is more efficient if we also use separate logic for betwTbTc (keeping it
+    # separate from betwTaTb).
+    if betwTaTb:
         if notDone_y == topRow:
             if notDone_x == 0:
                 if blanky == topRow:
@@ -442,6 +444,95 @@ def moveOneNotDone(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy, blankx, blanky,
                     if blankx in (0, 1):
                         return RIGHT
                     elif blankx == 3:
+                        return LEFT  # used to be up (until 1/29/2020)
+            elif notDone_x == 3:
+                # move CW to bring notDone into topRow swap columns
+                if blanky == topRow:
+                    if blankx in (0, 1, 2):
+                        return RIGHT
+                    elif blankx == 3:
+                        return DOWN
+                elif blanky == bottomRow:
+                    if blankx == 0:
+                        return UP
+                    elif blankx in (1, 2):
+                        return LEFT
+    elif betwTbTc:
+        if notDone_y == topRow:
+            if notDone_x == 0:
+                if blanky == topRow:
+                    return LEFT
+                elif blanky == bottomRow:
+                    if blankx in (0, 1, 2):
+                        return RIGHT
+                    elif blankx == 3:
+                        return UP
+            elif notDone_x == 1:
+                if blanky == topRow:
+                    if blankx in (0, 3):
+                        return DOWN
+                    elif blankx == 2:
+                        return RIGHT
+                elif blanky == bottomRow:
+                    if blankx in (2, 3):
+                        return LEFT
+                    elif blankx == 0:
+                        return RIGHT
+            elif notDone_x == 2:
+                if blanky == topRow:
+                    if blankx in (0, 3):
+                        return DOWN
+                    elif blankx == 1:
+                        return LEFT
+                elif blanky == bottomRow:
+                    if blankx == 3:
+                        return LEFT
+                    elif blankx in (0, 1):
+                        return RIGHT
+            elif notDone_x == 3:
+                if blanky == topRow:
+                    return RIGHT
+                elif blanky == bottomRow:
+                    if blankx in (1, 2, 3):
+                        return LEFT
+                    elif blankx == 0:
+                        return UP
+        # notDone in bottomRow:
+        elif notDone_y == bottomRow:
+            if notDone_x == 0:
+                if blanky == topRow:
+                    if blankx in (1, 2, 3):
+                        return LEFT
+                    elif blankx == 0:
+                        return DOWN
+                elif blanky == bottomRow:
+                    if blankx in (1, 2):
+                        return RIGHT
+                    elif blankx == 3:
+                        return UP
+            elif notDone_x == 1:
+                # move CCW
+                if blanky == topRow:
+                    if blankx in (1, 2, 3):
+                        return LEFT
+                    elif blankx == 0:
+                        return DOWN
+                elif blanky == bottomRow:
+                    if blankx in (0, 2):
+                        return RIGHT
+                    elif blankx == 3:
+                        return UP
+            elif notDone_x == 2:
+                # move CW to bring notDone into topRow, col-2
+                if blanky == topRow:
+                    if blankx in (0, 1, 2):
+                        return RIGHT
+                    elif blankx == 3:
+                        return DOWN
+                elif blanky == bottomRow:
+                    if blankx in (1, 3):
+                        return LEFT
+                    elif blankx == 0:
                         return UP
             elif notDone_x == 3:
                 # move CW to bring notDone into topRow swap columns
@@ -454,7 +545,7 @@ def moveOneNotDone(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy, blankx, blanky,
                     if blankx == 0:
                         return UP
                     elif blankx in (1, 2):
-                        return LEFT  
+                        return LEFT
     # notDone betw Tc,Td:
     elif betwTcTd:
         if notDone_y == topRow:
