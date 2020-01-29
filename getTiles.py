@@ -1442,9 +1442,6 @@ def bubbleUp(target, row, board, lastMove):
             # blank is in the bottomRow (row 2); target T is in row 3
             tsInRow3 = allRowTs & {(0, 3), (1, 3), (2, 3), (3, 3)}
             
-            if len(tsInRow3) == 0:
-                pdb.set_trace()
-            
             try:
                 if len(tsInRow3) == 0:
                     raise ValueError
