@@ -15,4 +15,6 @@ The code for the slide puzzle algorithm is robust in the sense that it has succe
   
 While the algorithm is robust, it may not be perfect in the sense that it can solve all boards presented to it.  There are almost 21 trillion permutations for the 16 tiles, half of which can be slide puzzle puzzles.  Thus, I have tested my algorithm against only a small fraction of the possible puzzles.
 
+
 Final note: when challenging the algorithm, it is best to play around 20 games against it and look at the total games won out of total games played.  Have fun.
+
