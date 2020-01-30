@@ -4,7 +4,7 @@
 #############################################################################
 
 # SlidePuzzlePlus, spPLUS_TESTING_module.py
-# By Greg Schaefer (gnsphd@outlook.com)
+# By Greg Schaefer (schae029@gmail.com)
 
 #  Copyright (C) 2020 by Gregory N. Schaefer
 #
@@ -60,59 +60,49 @@ from datetime import datetime
 
 def main():
     
-    filepath = '  '
-    filename = 'sp_testResults.json'
-    myfile = filepath + filename
+    filepath = ''
+    filename = 'sp_problemBoards.json'
+    badout = filepath + filename
     datafile = filepath + 'sp_allTestResults.json'
 
-    mainBoard, solutionSeq = generateNewPuzzle(140)
     # A solved board is the same as the board in a start state, prior to any
     # scrambling of the tiles (which is done in generateNewPuzzle).
     SOLVEDBOARD = getStartingBoard()
-    
-    newBoard = str(mainBoard[:])
-    allMoves = []  # list of moves made from the solved configuration
-    clicks = 0  # Keep track of the number of moves made
-    lastMove = None
+    alg_ON = True
 
-    boardsToTest = 100000
+    boardsToTest = 250000
     n = 0
     problem = False
     # testResults = []
     testBoards = []
     results = []
-    
-    # testBoards.append(newBoard)
 
-    while n < boardsToTest and problem == False:  # OUTER LOOP
-        if n > 0:
-            mainBoard, solutionSeq = generateNewPuzzle(140)   # New Game
-            newBoard = str(mainBoard[:])
-            # testBoards.append(newBoard)
-            allMoves = []
-            clicks = 0
-            lastMove = None
+    while n < boardsToTest and not problem:  # OUTER LOOP
+        mainBoard, solutionSeq = generateNewPuzzle(130)   # New Game
+        newBoard = str(mainBoard[:])
+        # testBoards.append(newBoard)
+        clicks = 0
+        lastMove = None
             
         msg = 'Click tile or press arrow keys to slide.'
 
-        while msg != SOLVED and problem == False:  # INNER LOOP
+        while msg != SOLVED and not problem:  # INNER LOOP
             slideTo = None
-            alg_ON = True
             if mainBoard == SOLVEDBOARD:
                 msg = SOLVED
-                # testResults.append({newBoard: clicks})
                 results.append(clicks)
+                if clicks > 250:
+                    testBoards.append(newBoard)
+                    testBoards.append(str(clicks))
                         
             if msg != SOLVED:
                 slideTo = getNextMove(mainBoard, lastMove, SOLVEDBOARD)
 
-            if slideTo:
+            if slideTo and slideTo != 'Stop':
                 lastMove = slideTo
                 makeMove(mainBoard, slideTo, alg_ON)
-                allMoves.append(slideTo)
                 clicks += 1
-                # the code is broken if we go over 350 moves.
-            if clicks > 350 or (slideTo is None and msg != SOLVED):
+            if clicks > 360 or (slideTo is None and msg != SOLVED) or slideTo == 'Stop':
                 problem = True
                 # testResults.append({newBoard: clicks})
                 results.append(clicks)
@@ -121,18 +111,16 @@ def main():
         ### END OF OUTER WHILE LOOP
     if problem == True:
         testBoards.append(newBoard)
-    with open(myfile, 'w') as file_object:
+    with open(badout, 'a') as file_object:
         json.dump(testBoards, file_object)
     with open(datafile, 'a') as file2:
         json.dump(results, file2)
-    # print(results)
+    # If len(results) is the same as the number of boards we are testing, then
+    # the algorithm successfully solved all puzzles given to it.
     print("The length of testResults is: ", len(results))
 
 
 def getStartingBoard():
-    # Return a board data structure with tiles in the solved state.
-    # For example, if BOARDWIDTH and BOARDHEIGHT are both 3, this function
-    # returns [[1, 4, 7], [2, 5, 8], [3, 6, BLANK]]
     counter = 1
     board = []
     for x in range(BOARDWIDTH):
@@ -229,9 +217,9 @@ delta = stop - start
 time_val = round(delta.seconds + delta.microseconds/1000000, 2)
 print(time_val)
 
-# test pgm needs 15 - 18 minutes to run 100,000 boards through the algorithm.
+# test pgm needs ~15 minutes to run 100,000 boards through the algorithm.
 
-filepath = '  '
+filepath = ''
 datafile = filepath + 'sp_allTestResults.json'
 with open(datafile) as f_obj:
     mydat = json.load(f_obj)
@@ -242,16 +230,8 @@ print("Minimum number of clicks is: ", str(min(mydat)))
 
 
 import numpy as np
-print(np.mean(mydat))
-print(np.median(mydat))
-
-
-
-##############################################################################
-###
-##############################################################################
-
-
+print("The average number of clicks is: ", str(np.mean(mydat)))
+print("The median number of clicks is: ", str(np.median(mydat)))
 
 
 
