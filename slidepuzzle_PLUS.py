@@ -117,7 +117,7 @@ def main():
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-    pygame.display.set_caption('Slide Puzzle')
+    pygame.display.set_caption('Slide Puzzle +')
     BASICFONT = pygame.font.Font('freesansbold.ttf', BASICFONTSIZE)
     SMALLFONT = pygame.font.SysFont('timesnewroman', SMALLFONTSIZE)
 
@@ -222,7 +222,7 @@ def main():
 
         # When the computer is not making a move, slideTo has a value only
         # if player has neither timed out nor solved the puzzle.
-        if slideTo:
+        if slideTo and slideTo != 'Stop':
             lastMove = slideTo
             animationSpeed = 8
             slideAnimation(mainBoard,

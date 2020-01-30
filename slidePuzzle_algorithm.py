@@ -229,7 +229,7 @@ def getNextMove(board, lastMove, SOLVEDBOARD):
                                        T12y, T13x, T13y, T14x, T14y, T15x, T15y,
                                        blankx, blanky, lastMove)
                 # a check against lastMove is done in moveLast3Ts()
-                return nextMove         
+                return nextMove        
         # the following check on board is needed so that once the board is
         # solved, hitting on the COMPUTE MOVE button will do nothing.
         elif finalRowsReady:
@@ -359,6 +359,13 @@ def continueDir(lastMove, blankx, blanky, topRow, bottomRow):
     continuing in either a clockwise or counter-clockwise direction.  Note
     that this function will not work if we entered topRow or bottomRow
     from a swap column."""
+    
+    try:
+        if blankx in (1, 2) and lastMove in (UP, DOWN):
+            raise ValueError
+    except ValueError:
+        print("ERROR: Cannot call continueDir after having just done a cross-swap.")
+    
     if blanky == topRow:
         if blankx == 0:
             if lastMove == LEFT:
@@ -405,7 +412,6 @@ def readyToRotate(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy, blankx, blanky,
     their final spots.  Blank will also be located in either the topRow or
     bottomRow."""
 
-    returnVal = False
     board_positions = {(0, topRow), (1, topRow), (2, topRow), (3, topRow),
                        (0, bottomRow), (1, bottomRow), (2, bottomRow),
                        (3, bottomRow)}
@@ -419,8 +425,9 @@ def readyToRotate(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy, blankx, blanky,
     mylst = getTrueReversedTs(Tax, Tay, Tbx, Tby, Tcx, Tcy, Tdx, Tdy, blankx,
                               blanky, Qx, Qy, Rx, Ry, Sx, Sy, topRow, bottomRow)
     if len(mylst) == 0:
-        returnVal = True
-    return returnVal
+        return True
+    else:
+        return False
 
 
 def finalRsReady(T9x, T9y, T10x, T10y, T11x, T11y, T12x, T12y, T13x, T13y,
@@ -464,6 +471,15 @@ def orderLast3Ts(T9x, T9y, T10x, T10y, T11x, T11y, T12x, T12y, Qx, Qy, Rx, Ry,
     SbetwRQ = tileBetw(Rx, Ry, Qx, Qy, Sx, Sy, blankx, blanky, topRow, bottomRow)
     QbetwST12 = tileBetw(Sx, Sy, T12x, T12y, Qx, Qy, blankx, blanky, topRow, bottomRow)
     case1 = RbetwT9S and SbetwRQ and QbetwST12
+    
+    SbetwT9Q = tileBetw(T9x, T9y, Qx, Qy, Sx, Sy, blankx, blanky, topRow, bottomRow)
+    QbetwSR = tileBetw(Sx, Sy, Rx, Ry, Qx, Qy, blankx, blanky, topRow, bottomRow)
+    RbetwQT12 = tileBetw(Qx, Qy, T12x, T12y, Rx, Ry, blankx, blanky, topRow, bottomRow)
+    case2 = SbetwT9Q and QbetwSR and RbetwQT12
+
+    # the following is needed to measure the solution space    
+    if not(case1 or case2):
+        return 'Stop'
     
     if case1:
         # permutation is R,S,Q in the bottomRow, from left to right
@@ -872,7 +888,9 @@ def moveLast3Ts(T9x, T9y, T10x, T10y, T11x, T11y, T12x, T12y, T13x, T13y, T14x,
                            topRow, bottomRow)
         t14betw = tileBetw(T13x, T13y, T15x, T15y, T14x, T14y, blankx, blanky,
                            topRow, bottomRow)
-        ordered = t13betw and t14betw
+        t15betw = tileBetw(T14x, T14y, T12x, T12y, T15x, T15y, blankx, blanky,
+                           topRow, bottomRow)
+        ordered = t13betw and t14betw and t15betw
         
         if not ordered:
             nextMove = orderLast3Ts(T9x, T9y, T10x, T10y, T11x, T11y, T12x,
